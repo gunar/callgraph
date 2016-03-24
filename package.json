@@ -1,12 +1,12 @@
 {
   "name": "callgraph",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Parse JS into call graphs",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Gunar C. Gessner <gunar@gunargessner.com> (gunargessner.com)",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -22,7 +22,5 @@
     "call",
     "graph",
     "ast"
-  ],
-  "author": "Gunar C. Gessner <gunar@gunargessner.com> (gunargessner.com)",
-  "license": "MIT"
+  ]
 }

@@ -1,7 +1,11 @@
-// TODO take scope in consideration when parsing calls
-// TODO take in consideration module.exports not exportin all functions
-// TODO also, module.exports may export fn with different name
 'use strict'
+
+const hasbin = require('hasbin')
+if (!hasbin.sync('dot')) {
+  console.log('Please install graphviz dot.')
+  process.exit(0)
+}
+
 const input = process.argv[2]
 if (!input) {
   console.error('You forgot to pass file argument.')

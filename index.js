@@ -18,10 +18,14 @@ const parser = require('./parser')
 const mapTupleToString = t => `"${t[0]}" -> "${t[1]}"`
 
 parser(input, tuples => {
-    const out = fs.openSync('callgraph.dot', 'w');
-    fs.writeSync(out, `\ndigraph test{\noverlap=scalexy;\n`);
-    const callsStr = tuples.map(mapTupleToString).join(`\n`)
-    fs.writeSync(out, callsStr + '}');
+    const stream = fs.openSync('callgraph.dot', 'w');
+    const callsString = tuples.map(mapTupleToString).join(`\n`)
+    const data = `
+digraph test{
+overlap=scalexy;
+${callsString}
+}`
+    fs.writeSync(stream, data);
     // const unshown = calls
     // .filter(tuple => !filterTuple(tuple))
     // .map(mapTupleToString)
@@ -30,5 +34,4 @@ parser(input, tuples => {
 
     execSync('dot -Tpng -o callgraph.png callgraph.dot')
     console.log("Success! Check callgraph.png")
-    // execSync('viewnior callgraph.png')
 })

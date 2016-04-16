@@ -3,7 +3,7 @@
   "version": "1.0.4",
   "description": "Parse JS into call graphs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tape test/*.js"
   },
   "author": "Gunar C. Gessner <gunar@gunargessner.com> (gunargessner.com)",
   "license": "MIT",
@@ -17,6 +17,7 @@
     "es6-promisify": "^3.0.0",
     "hasbin": "^1.2.1",
     "queue": "^3.1.0",
+    "ramda": "^0.21.0",
     "tape": "^4.5.1",
     "uglify-js": "^2.6.2"
   },

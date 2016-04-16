@@ -29,5 +29,6 @@ parser(input, tuples => {
     // console.log('unshown calls', unshown)
 
     execSync('dot -Tpng -o callgraph.png callgraph.dot')
-    execSync('viewnior callgraph.png')
+    console.log("Success! Check callgraph.png")
+    // execSync('viewnior callgraph.png')
 })

@@ -5,8 +5,9 @@ const path = require('path')
 const promisify = require('es6-promisify')
 const UglifyJS = require('uglify-js')
 const queue = require('queue')
+const R = require('ramda')
 
-const localize = (currentFile, fn) => `[${currentFile}]${fn}`
+const localize = (currentFile, fn) => fn ? `[${currentFile}]${fn}` : `[${currentFile}]`
 const fsReadFile = promisify(fs.readFile)
 const readFile = file => fsReadFile(file, 'utf-8')
 
@@ -40,52 +41,79 @@ function processFile(requiredFile, cb) {
       const localModules = []
       const walker = new UglifyJS.TreeWalker(function(node){
         //check for function calls
-        if (node instanceof UglifyJS.AST_Definitions) {
+        const isDefinition = node instanceof UglifyJS.AST_Definitions
+        const isCall = node instanceof UglifyJS.AST_Call
+        const isDefun = node instanceof UglifyJS.AST_Defun
+        const isDotAccess = node instanceof UglifyJS.AST_Dot
+        if (isDefinition) {
           // TODO: Should loop though all definitions
           if (node.definitions[0].value.expression && node.definitions[0].value.expression.name === 'require') {
-            const localName = node.definitions[0].name.name
+            const localName = R.pipe(R.head, R.path(['name', 'name']))(node.definitions)
             const location = node.definitions[0].value.args[0].value
             if (/^\./.test(location)) {
               localModules.push([localName, location])
             }
           }
-        } else if (node instanceof UglifyJS.AST_Call) {
-          //find where the calling function is defined
+        } else if (isCall || isDotAccess) {
+          // TODO: Do this for AST_Sub too
+          // Find scope (i.e. the immediately superior function)
+          if (isCall && /(Number|Date|callback|require)/.test(node.expression.name)) return
           const p = walker.find_parent(UglifyJS.AST_Defun);
-          if (/(Number|Date|callback|require)/.test(node.expression.name)) return
-            if (p !== undefined) {
-              if (node.expression.name !== undefined) {
-                // common call e.g. function()
-                calls.push([localize(currentFile, p.name.name), localize(currentFile, node.expression.name)])
-              } else {
-                // method call e.g. lib.function()
-                const name = p.name.name
-                const module = node.expression.start.value
-                const moduleAsFile = localModules
-                  .filter(t => t[0] == module)
-                  .map(t => t[1])
-                  .pop()
-                const prop = node.expression.property
-                if (moduleAsFile) {
-                  calls.push([localize(currentFile, name), localize(moduleAsFile, prop)])
-                } else {
-                  calls.push([localize(currentFile, name), localize(currentFile, `${module}.${prop}`)])
-                }
-              }
-            } else {
-              // it's a top level function
-              if (node.expression.name !== undefined) {
-                calls.push([localize(currentFile, 'Program'), localize(currentFile, node.expression.name)])
-              } else {
-                calls.push([localize(currentFile, 'Program'),  localize(currentFile, `${node.expression.start.value}.${node.expression.property}`)])
-              }
+          const name = R.path(['name', 'name'], p)
+          if (isCall && node.expression.name !== undefined) {
+            // common call e.g. function()
+            calls.push([localize(currentFile, name), localize(currentFile, node.expression.name)])
+          } else {
+            let module, prop
+            if (isCall) {
+              // method call e.g. lib.function()
+              module = node.expression.start.value
+              prop = node.expression.property
+            } else if (isDotAccess) {
+              module = node.start.value
+              prop = node.property
             }
-        }
-        if(node instanceof UglifyJS.AST_Defun)
-          {
-            //defined but not called
-            definedFunctions.push(localize(currentFile, node.name.name))
+            const moduleAsFile = localModules
+              .filter(t => t[0] == module)
+              .map(t => t[1])
+              .pop()
+            if (moduleAsFile) {
+              calls.push([localize(currentFile, name), localize(moduleAsFile, prop)])
+            } else {
+              calls.push([localize(currentFile, name), localize(currentFile, `${module}.${prop}`)])
+            }
           }
+          // } else {
+          //   let functionCalled
+          //   // it's a top level function
+          //   if (isCall) {
+          //     if (node.expression.name !== undefined) {
+          //       // direct call e.g. lodash()
+          //       functionCalled = localize(currentFile, node.expression.name)
+          //       // calls.push([localize(currentFile, 'Program'), localize(currentFile, node.expression.name)])
+          //     } else {
+          //       // subcall e.g. lodash.filter()
+          //       functionCalled = localize(currentFile, `${node.expression.start.value}.${node.expression.property}`)
+          //     }
+          //   } else if (isDotAccess) {
+          //     const functionCalled = localize(currentFile, `${node.start.value}.${node.property}`)
+          //   }
+          //   console.log("!!!", functionCalled)
+          //   const moduleAsFile = localModules
+          //     .filter(t => t[0] == module)
+          //     .map(t => t[1])
+          //     .pop()
+          //   const thisFile = localize(currentFile, 'Program')
+          //   if (moduleAsFile) {
+          //     calls.push([thisFile, localize(moduleAsFile, prop)])
+          //   } else {
+          //     calls.push([thisFile, localize(currentFile, `${module}.${prop}`)])
+          //   }
+          // }
+        } else if (isDefun) {
+          //defined but not called
+          definedFunctions.push(localize(currentFile, R.path(['name', 'name'], node)))
+        }
       })
       toplevel.walk(walker);
       const modulesAsFiles = localModules.map(t => t[1])

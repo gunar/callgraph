@@ -12,3 +12,13 @@ test('Should parse functions in separate files', t => {
     t.ok(findCallInAnotherFile(tuples))
   })
 })
+
+test('Should understand function references', t => {
+  t.plan(1)
+  parser('test/mocks/file.js', tuples => {
+    const referencedFn = '[./anotherFile]referencedFn'
+    const callToAnother = R.pipe(R.last, R.equals(referencedFn))
+    const findCallInAnotherFile = R.find(callToAnother)
+    t.ok(findCallInAnotherFile(tuples))
+  })
+})

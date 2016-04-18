@@ -83,35 +83,7 @@ function processFile(requiredFile, cb) {
               calls.push([localize(currentFile, name), localize(currentFile, `${module}.${prop}`)])
             }
           }
-          // } else {
-          //   let functionCalled
-          //   // it's a top level function
-          //   if (isCall) {
-          //     if (node.expression.name !== undefined) {
-          //       // direct call e.g. lodash()
-          //       functionCalled = localize(currentFile, node.expression.name)
-          //       // calls.push([localize(currentFile, 'Program'), localize(currentFile, node.expression.name)])
-          //     } else {
-          //       // subcall e.g. lodash.filter()
-          //       functionCalled = localize(currentFile, `${node.expression.start.value}.${node.expression.property}`)
-          //     }
-          //   } else if (isDotAccess) {
-          //     const functionCalled = localize(currentFile, `${node.start.value}.${node.property}`)
-          //   }
-          //   console.log("!!!", functionCalled)
-          //   const moduleAsFile = localModules
-          //     .filter(t => t[0] == module)
-          //     .map(t => t[1])
-          //     .pop()
-          //   const thisFile = localize(currentFile, 'Program')
-          //   if (moduleAsFile) {
-          //     calls.push([thisFile, localize(moduleAsFile, prop)])
-          //   } else {
-          //     calls.push([thisFile, localize(currentFile, `${module}.${prop}`)])
-          //   }
-          // }
         } else if (isDefun) {
-          //defined but not called
           definedFunctions.push(localize(currentFile, R.path(['name', 'name'], node)))
         }
       })

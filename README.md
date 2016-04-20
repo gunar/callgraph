@@ -1,8 +1,27 @@
 # Callgraph
 
-This is experimental. Use at your own risk (if ever you figure out how to use it)
+> This is experimental. Use at your own risk.
 
 ![output example](example.png)
+
+## Installation
+
+Install [Graphviz's Dot](https://duckduckgo.com/?q=graphviz%20dot), then install callgraph from npm
+
+```
+npm install -g callgraph
+```
+
+## Usage
+
+```
+callgraph index.js
+```
+
+This will generate two files in the current directory:
+
+- `callgraph.png`: An image representing the callgraph
+- `callgraph.dot`: A file with a Dot representation of the callgraph
 
 ## Questions
 

@@ -47,7 +47,7 @@ function processFile(requiredFile, cb) {
         const isDotAccess = node instanceof UglifyJS.AST_Dot
         if (isDefinition) {
           // TODO: Should loop though all definitions
-          if (node.definitions[0].value.expression && node.definitions[0].value.expression.name === 'require') {
+          if (node.definitions[0].value && node.definitions[0].value.expression && node.definitions[0].value.expression.name === 'require') {
             const localName = R.pipe(R.head, R.path(['name', 'name']))(node.definitions)
             const location = node.definitions[0].value.args[0].value
             if (/^\./.test(location)) {

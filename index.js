@@ -19,7 +19,9 @@ const mapTupleToString = t => `"${t[0]}" -> "${t[1]}"`
 
 parser(input, tuples => {
     const stream = fs.openSync('callgraph.dot', 'w');
-    const callsString = tuples.map(mapTupleToString).join(`\n`)
+    let calls = tuples.map(mapTupleToString);
+    calls = calls.filter((call, index) => calls.indexOf(call) === index);
+    const callsString = calls.join(`\n`)
     const data = `
 digraph test{
 overlap=scalexy;

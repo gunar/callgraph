@@ -1,6 +1,6 @@
 {
   "name": "callgraph",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Parse JS into call graphs",
   "scripts": {
     "test": "tape test/*.js"
